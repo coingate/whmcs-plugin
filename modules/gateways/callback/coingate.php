@@ -48,7 +48,7 @@ $coingate_order = \CoinGate\Merchant\Order::findOrFail($_REQUEST['id'], array(),
 switch ($coingate_order->status) {
   case 'paid':
     addInvoicePayment($invoice_id, $trans_id, $amount, $fee, $gatewaymodule);
-    logTransaction($GATEWAY['name'], $response, 'The payment has been received and confirmed by the Bitcoin network.');
+    logTransaction($GATEWAY['name'], $response, 'The payment has been received and confirmed.');
     break;
   case 'confirming':
     logTransaction($GATEWAY['name'], $response, 'The payment is confirming.');
@@ -63,6 +63,6 @@ switch ($coingate_order->status) {
     logTransaction($GATEWAY['name'], $response, 'The payment is invalid.');
     break;
   case 'refunded':
-    logTransaction($GATEWAY['name'], $response, 'The transaction was refunded.');
+    logTransaction($GATEWAY['name'], $response, 'The payment was refunded.');
     break;
 }
