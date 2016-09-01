@@ -26,7 +26,7 @@ function coingate_config() {
     ),
     'Environment' => array(
       'FriendlyName' => 'Environment',
-      'Description'  => 'Live(https://coingate.com) is for production and Sandbox(https://sandbox.coingate.com) is for testing purpose.',
+      'Description'  => 'Live (https://coingate.com) is for production and Sandbox (https://sandbox.coingate.com) is for testing purpose.',
       'Type'         => 'dropdown',
       'Options'      => 'live,sandbox',
     ),
