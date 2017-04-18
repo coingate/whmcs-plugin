@@ -26,14 +26,15 @@ function coingate_config() {
     ),
     'Environment' => array(
       'FriendlyName' => 'Environment',
-      'Description'  => 'Live (https://coingate.com) is for production and Sandbox (https://sandbox.coingate.com) is for testing purpose.',
+      'Description'  => 'Live (https://coingate.com) is for production and Sandbox (https://sandbox.coingate.com) is for testing purpose. Please note, that for Sandbox you must generate separate API credentials on sandbox.coingate.com. API credentials generated on coingate.com will not work for Sandbox',
       'Type'         => 'dropdown',
       'Options'      => 'live,sandbox',
     ),
     'ReceiveCurrency' => array(
-      'FriendlyName'  => 'Currency you want to receive when making withdrawal at CoinGate. Please take a note what if you choose EUR or USD you will be asked to verify your business before making a withdrawal at CoinGate.',
+      'FriendlyName'  => 'Receive Currency',
+      'Description'   => 'Currency you want to receive when making withdrawal at CoinGate. Please take a note what if you choose EUR or USD you will be asked to verify your business before making a withdrawal at CoinGate.',
       'Type'          => 'dropdown',
-      'Options'       => 'EUR,USD,BTC',
+      'Options'       => 'BTC,EUR,USD',
     )
   );
 }
