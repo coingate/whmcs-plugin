@@ -1,6 +1,8 @@
 # WHMCS CoinGate Plugin
 
-CoinGate bitcoin payment gateway WHMCS plugin.
+Accept Bitcoin & Altcoins on your WHMCS website.
+
+Read the module installation instructions below to get started with CoinGate Bitcoin & Altcoin payment gateway on your shop.
 
 ## Install
 
