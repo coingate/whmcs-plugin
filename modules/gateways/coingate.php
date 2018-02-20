@@ -49,9 +49,9 @@ function coingate_link($params) {
     'price'            => number_format($params['amount'], 2, '.', ''),
     'currency'         => $params['currency'],
     'receive_currency' => $params['ReceiveCurrency'],
-    'cancel_url'       => $params['systemurl'] . '/clientarea.php',
-    'callback_url'     => $params['systemurl'] . '/modules/gateways/callback/coingate.php',
-    'success_url'      => $params['systemurl'] . '/viewinvoice.php?id=' . $params['invoiceid'],
+    'cancel_url'       => $params['systemurl'] . 'clientarea.php',
+    'callback_url'     => $params['systemurl'] . 'modules/gateways/callback/coingate.php',
+    'success_url'      => $params['systemurl'] . 'viewinvoice.php?id=' . $params['invoiceid'],
     'title'            => $params['companyname'],
     'description'      => $params['description']
   );
