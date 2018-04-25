@@ -5,8 +5,6 @@ require_once(dirname(__FILE__) . '/CoinGate/version.php');
 
 function coingate_config()
 {
-    $config = getGatewayVariables('coingate');
-
     return array(
         'FriendlyName' => array(
             'Type' => 'System',
@@ -16,7 +14,6 @@ function coingate_config()
             'FriendlyName' => 'API Auth Token',
             'Description' => 'API Auth Token from CoinGate API Apps.',
             'Type' => 'text',
-            'Value' => empty($config['ApiAuthToken']) ? $config['ApiSecret'] : $config['ApiAuthToken']
         ),
         'Environment' => array(
             'FriendlyName' => 'Environment',
