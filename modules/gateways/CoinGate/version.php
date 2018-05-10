@@ -1,3 +1,3 @@
 <?php
 
-define('COINGATE_PLUGIN_VERSION', '1.1.0');
+define('COINGATE_PLUGIN_VERSION', '1.1.1');
