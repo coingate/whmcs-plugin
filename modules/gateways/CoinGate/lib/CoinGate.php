@@ -3,7 +3,7 @@ namespace CoinGate;
 
 class CoinGate
 {
-    const VERSION           = '3.0.0';
+    const VERSION           = '3.0.1';
     const USER_AGENT_ORIGIN = 'CoinGate PHP Library';
 
     public static $auth_token  = '';
@@ -21,6 +21,9 @@ class CoinGate
 
         if (isset($authentication['user_agent']))
             self::$user_agent = $authentication['user_agent'];
+        
+        if (isset($authentication['curlopt_ssl_verifypeer'])) 
+            self::$curlopt_ssl_verifypeer = $authentication['curlopt_ssl_verifypeer'];
     }
 
     public static function testConnection($authentication = array())
@@ -74,8 +77,11 @@ class CoinGate
         curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $curlopt_ssl_verifypeer);
 
-        $response    = json_decode(curl_exec($curl), TRUE);
-        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        $raw_response       = curl_exec($curl);
+        $decoded_response   = json_decode($raw_response, TRUE);
+        $response           = $decoded_response ? $decoded_response : $raw_response;
+        $http_status        = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         if ($http_status === 200)
             return $response;

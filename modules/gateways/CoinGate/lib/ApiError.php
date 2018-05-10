@@ -11,6 +11,9 @@ class BadEnvironment extends BadRequest {}
 # HTTP Status 401
 class Unauthorized extends APIError {}
 class BadCredentials extends Unauthorized {}
+class BadAuthToken extends Unauthorized {}
+class AccountBlocked extends Unauthorized {}
+class IpAddressIsNotAllowed extends Unauthorized {}
 
 # HTTP Status 404
 class NotFound extends APIError {}
@@ -25,5 +28,5 @@ class OrderIsNotValid extends UnprocessableEntity {}
 # HTTP Status 429
 class RateLimitException extends APIError {}
 
-# HTTP Status 500
+# HTTP Status 500, 504
 class InternalServerError extends APIError {}
