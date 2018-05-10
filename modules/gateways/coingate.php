@@ -36,14 +36,20 @@ function coingate_link($params)
         die('[ERROR] In modules/gateways/coingate.php::coingate_link() function: Missing or invalid $params data.');
     }
 
+    if (substr($params['systemurl'], -1) != "/") {
+      $returnlink = $params['systemurl'] . "/";
+    } else {
+      $returnlink = $params['systemurl'];
+    }
+
     $coingate_params = array(
         'order_id'          => $params['invoiceid'],
         'price_amount'      => number_format($params['amount'], 8, '.', ''),
         'price_currency'    => $params['currency'],
         'receive_currency'  => $params['ReceiveCurrency'],
-        'cancel_url'        => $params['systemurl'] . 'clientarea.php',
-        'callback_url'      => $params['systemurl'] . 'modules/gateways/callback/coingate.php',
-        'success_url'       => $params['systemurl'] . 'viewinvoice.php?id=' . $params['invoiceid'],
+        'cancel_url'        => $returnlink . 'clientarea.php',
+        'callback_url'      => $returnlink . 'modules/gateways/callback/coingate.php',
+        'success_url'       => $returnlink . 'viewinvoice.php?id=' . $params['invoiceid'],
         'title'             => $params['companyname'],
         'description'       => $params['description']
     );
