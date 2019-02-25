@@ -25,7 +25,7 @@ function coingate_config()
             'FriendlyName' => 'Payout Currency',
             'Description' => 'Currency you want to receive when making withdrawal at CoinGate. Please take a note what if you choose EUR or USD you will be asked to verify your business before making a withdrawal at CoinGate.',
             'Type' => 'dropdown',
-            'Options' => 'BTC,EUR,USD,ETH,LTC,DO_NOT_CONVERT',
+            'Options' => 'BTC,USDT,ETH,LTC,EUR,USD,DO_NOT_CONVERT',
         )
     );
 }
