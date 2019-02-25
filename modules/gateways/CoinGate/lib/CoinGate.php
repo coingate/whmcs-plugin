@@ -83,9 +83,7 @@ class CoinGate
         $response           = $decoded_response ? $decoded_response : $raw_response;
         $http_status        = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        if ($http_status === 200)
-            return $response;
-        else
-            \CoinGate\Exception::throwException($http_status, $response);
+        return $response;
+     
     }
 }

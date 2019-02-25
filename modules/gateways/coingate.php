@@ -60,11 +60,21 @@ function coingate_link($params)
         'user_agent' => 'CoinGate - WHMCS Extension v' . COINGATE_PLUGIN_VERSION,
     );
 
+    
+
+
     $order = \CoinGate\Merchant\Order::createOrFail($coingate_params, array(), $authentication);
 
-    $form = '<form action="' . $order->payment_url . '" method="GET">';
-    $form .= '<input type="submit" value="' . $params['langpaynow'] . '" />';
-    $form .= '</form>';
+    if($order->payment_url ) {
 
-    return $form;
+        $form = '<form action="' . $order->payment_url . '" method="GET">';
+        $form .= '<input type="submit" value="' . $params['langpaynow'] . '" />';
+        $form .= '</form>';
+        return $form;
+
+    } else {
+        $form = '<h2>' . $order->reason . '</h2>';
+        $form .= '<h3>Please contact merchant for further details</h3>';
+        return $form;
+    }
 }
