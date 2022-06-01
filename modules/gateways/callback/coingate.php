@@ -16,23 +16,7 @@ if (! $gatewayParams['type']) {
     die('Module not activated.');
 }
 
-$invoiceId = $_POST['order_id'];
 $transactionId = $_POST['id'];
-
-/**
- * Validate Callback Invoice ID.
- *
- * Checks invoice ID is a valid invoice number. Note it will count an
- * invoice in any status as valid.
- *
- * Performs a die upon encountering an invalid Invoice ID.
- *
- * Returns a normalised invoice ID.
- *
- * @param int $invoiceId Invoice ID
- * @param string $gatewayName Gateway Name
- */
-$invoiceId = checkCbInvoiceID($invoiceId, $gatewayParams['name']);
 
 /**
  * Check Callback Transaction ID.
@@ -49,15 +33,29 @@ checkCbTransID($transactionId);
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-// Gateway Configuration Parameters
-$apiAuthToken = $gatewayParams['apiAuthToken'];
-$useSandboxEnv = $gatewayParams['useSandboxEnv'];
-
 require_once __DIR__ . '/../coingate/client.php';
 
-$client = new CoinGate\Client($apiAuthToken, $useSandboxEnv);
+$client = new CoinGate\Client(
+    $gatewayParams['apiAuthToken'],
+    $gatewayParams['useSandboxEnv']
+);
 
 $order = $client->order->get($transactionId);
+
+/**
+ * Validate Callback Invoice ID.
+ *
+ * Checks invoice ID is a valid invoice number. Note it will count an
+ * invoice in any status as valid.
+ *
+ * Performs a die upon encountering an invalid Invoice ID.
+ *
+ * Returns a normalised invoice ID.
+ *
+ * @param int $invoiceId Invoice ID
+ * @param string $gatewayName Gateway Name
+ */
+$invoiceId = checkCbInvoiceID($order->order_id, $gatewayParams['name']);
 
 /**
  * Log Transaction.
