@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../../init.php';
 require_once __DIR__ . '/../../../includes/gatewayfunctions.php';
 require_once __DIR__ . '/../../../includes/invoicefunctions.php';
 
+use WHMCS\Database\Capsule;
+
 // Detect module name from filename.
 $gatewayModuleName = basename(__FILE__, '.php');
 
@@ -82,7 +84,23 @@ $transactionStatusMessage = [
 
 logTransaction($gatewayParams['name'], $_POST, $transactionStatusMessage[$order->status]);
 
-if ($order->status == 'paid') {
+
+if (in_array($order->status, ['canceled', 'expired', 'invalid'])) {
+
+    $action = $gatewayParams['action_on_' . $order->status];
+
+    if ($action == 'canceled') {
+        localAPI('CancelOrder', [
+            'orderid' => Capsule::table('tblorders')
+                ->where('paymentmethod', $gatewayModuleName)
+                ->where('invoiceid', $invoiceId)
+                ->value('id')
+        ]);
+    }
+
+}
+
+elseif ($order->status == 'paid') {
 
     /**
      * Add Invoice Payment.

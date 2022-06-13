@@ -52,7 +52,7 @@ function coingate_config()
         ],
 
         'useSandboxEnv' => [
-            'FriendlyName' => 'Sandbox mode',
+            'FriendlyName' => 'Sandbox Mode',
             'Type' => 'yesno',
             'Description' => 'Enable to use Sandbox for testing purpose. Please note, that for Sandbox you must generate separate API credentials at https://sandbox.coingate.com',
         ],
@@ -62,6 +62,27 @@ function coingate_config()
             'Type' => 'dropdown',
             'Options' => 'BTC,USDT,ETH,LTC,EUR,USD,DO_NOT_CONVERT',
             'Description' => 'Currency you want to receive when making withdrawal at CoinGate. Please take a note what if you choose EUR or USD you will be asked to verify your business before making a withdrawal at CoinGate',
+        ],
+
+        'action_on_canceled' => [
+            'FriendlyName' => 'Order Status on Canceled',
+            'Type' => 'dropdown',
+            'Options' => ['ignore' => 'No Action', 'canceled' => 'Canceled'],
+            'Description' => 'What order status should be when buyer canceled the invoice?'
+        ],
+
+        'action_on_expired' => [
+            'FriendlyName' => 'Order Status on Expired',
+            'Type' => 'dropdown',
+            'Options' => ['ignore' => 'No Action', 'canceled' => 'Canceled'],
+            'Description' => 'What order status should be when buyer did not pay within the required time and the invoice expired?'
+        ],
+
+        'action_on_invalid' => [
+            'FriendlyName' => 'Order Status on Invalid',
+            'Type' => 'dropdown',
+            'Options' => ['ignore' => 'No Action', 'canceled' => 'Canceled'],
+            'Description' => 'What order status should be when payment rejected by the network or did not confirm?'
         ],
 
     ];
