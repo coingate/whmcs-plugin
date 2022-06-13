@@ -1,4 +1,4 @@
-# WHMCS CoinGate Plugin
+# WHMCS CoinGate Payment Gateway
 
 Accept cryptocurrency payments on your WHMCS website.
 
