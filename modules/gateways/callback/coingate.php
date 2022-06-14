@@ -1,69 +1,124 @@
 <?php
 
-include('../../../includes/functions.php');
-include('../../../includes/gatewayfunctions.php');
-include('../../../includes/invoicefunctions.php');
+// Require libraries needed for gateway module functions.
+require_once __DIR__ . '/../../../init.php';
+require_once __DIR__ . '/../../../includes/gatewayfunctions.php';
+require_once __DIR__ . '/../../../includes/invoicefunctions.php';
 
-if (file_exists('../../../dbconnect.php'))
-    include '../../../dbconnect.php';
-else if (file_exists('../../../init.php'))
-    include '../../../init.php';
-else
-    die('[ERROR] In modules/gateways/callback/coingate.php: include error: Cannot find dbconnect.php or init.php');
+use WHMCS\Database\Capsule;
 
-$gatewaymodule = 'coingate';
-$GATEWAY = getGatewayVariables($gatewaymodule);
+// Detect module name from filename.
+$gatewayModuleName = basename(__FILE__, '.php');
 
-if (!$GATEWAY['type']) {
-    logTransaction($GATEWAY['name'], $_POST, 'Not activated');
-    die('[ERROR] In modules/gateways/callback/coingate.php: CoinGate module not activated.');
+// Fetch gateway configuration parameters.
+$gatewayParams = getGatewayVariables($gatewayModuleName);
+
+// Die if module is not active.
+if (! $gatewayParams['type']) {
+    die('Module not activated.');
 }
 
-$order_id = $_REQUEST['order_id'];
-$invoice_id = checkCbInvoiceID($order_id, $GATEWAY['coingate']);
+$transactionId = $_POST['id'];
 
-if (!$invoice_id)
-    throw new Exception('Order #' . $invoiceid . ' does not exists');
+/**
+ * Check Callback Transaction ID.
+ *
+ * Performs a check for any existing transactions with the same given
+ * transaction number.
+ *
+ * Performs a die upon encountering a duplicate.
+ *
+ * @param string $transactionId Unique Transaction ID
+ */
+checkCbTransID($transactionId);
 
-$trans_id = $_REQUEST['id'];
+// ------------------------------------------------------------------
+// ------------------------------------------------------------------
 
-checkCbTransID($trans_id);
+require_once __DIR__ . '/../coingate/client.php';
 
-$fee = 0;
-$amount = '';
-
-require_once('../CoinGate/init.php');
-require_once('../CoinGate/version.php');
-
-$authentication = array(
-    'auth_token'    => empty($GATEWAY['ApiAuthToken']) ? $GATEWAY['ApiSecret'] : $GATEWAY['ApiAuthToken'],
-    'environment'   => $GATEWAY['Environment'],
-    'user_agent'    => 'CoinGate - WHMCS Extension v' . COINGATE_PLUGIN_VERSION
+$client = new CoinGate\Client(
+    $gatewayParams['apiAuthToken'],
+    $gatewayParams['useSandboxEnv']
 );
 
-$coingate_order = \CoinGate\Merchant\Order::findOrFail($_REQUEST['id'], array(), $authentication);
+$order = $client->order->get($transactionId);
 
-switch ($coingate_order->status) {
-    case 'paid':
-        addInvoicePayment($invoice_id, $trans_id, $amount, $fee, $gatewaymodule);
-        logTransaction($GATEWAY['name'], $response, 'Payment is confirmed by the network, and has been credited to the merchant. Purchased goods/services can be securely delivered to the buyer.');
-        break;
-    case 'pending':
-        logTransaction($GATEWAY['name'], $response, 'Buyer selected payment currency. Awaiting payment.');
-        break;
-    case 'confirming':
-        logTransaction($GATEWAY['name'], $response, 'Buyer transferred the payment for the invoice. Awaiting blockchain network confirmation.');
-        break;
-    case 'canceled':
-        logTransaction($GATEWAY['name'], $response, 'Buyer canceled the invoice.');
-        break;
-    case 'expired':
-        logTransaction($GATEWAY['name'], $response, 'Buyer did not pay within the required time and the invoice expired.');
-        break;
-    case 'invalid':
-        logTransaction($GATEWAY['name'], $response, 'Payment rejected by the network or did not confirm.');
-        break;
-    case 'refunded':
-        logTransaction($GATEWAY['name'], $response, 'Payment was refunded to the buyer.');
-        break;
+/**
+ * Validate Callback Invoice ID.
+ *
+ * Checks invoice ID is a valid invoice number. Note it will count an
+ * invoice in any status as valid.
+ *
+ * Performs a die upon encountering an invalid Invoice ID.
+ *
+ * Returns a normalised invoice ID.
+ *
+ * @param int $invoiceId Invoice ID
+ * @param string $gatewayName Gateway Name
+ */
+$invoiceId = checkCbInvoiceID($order->order_id, $gatewayParams['name']);
+
+/**
+ * Log Transaction.
+ *
+ * Add an entry to the Gateway Log for debugging purposes.
+ *
+ * The debug data can be a string or an array. In the case of an
+ * array it will be
+ *
+ * @param string $gatewayName        Display label
+ * @param string|array $debugData    Data to log
+ * @param string $transactionStatus  Status
+ */
+
+$transactionStatusMessage = [
+    'paid' => 'Payment is confirmed by the network, and has been credited to the merchant. Purchased goods/services can be securely delivered to the buyer.',
+    'pending' => 'Buyer selected payment currency. Awaiting payment.',
+    'confirming' => 'Buyer transferred the payment for the invoice. Awaiting blockchain network confirmation.',
+    'canceled' => 'Buyer canceled the invoice.',
+    'expired' => 'Buyer did not pay within the required time and the invoice expired.',
+    'invalid' => 'Payment rejected by the network or did not confirm.',
+    'refunded' => 'Payment was refunded to the buyer.',
+];
+
+logTransaction($gatewayParams['name'], $_POST, $transactionStatusMessage[$order->status]);
+
+
+if (in_array($order->status, ['canceled', 'expired', 'invalid'])) {
+
+    $action = $gatewayParams['action_on_' . $order->status];
+
+    if ($action == 'canceled') {
+        localAPI('CancelOrder', [
+            'orderid' => Capsule::table('tblorders')
+                ->where('paymentmethod', $gatewayModuleName)
+                ->where('invoiceid', $invoiceId)
+                ->value('id')
+        ]);
+    }
+
+}
+
+elseif ($order->status == 'paid') {
+
+    /**
+     * Add Invoice Payment.
+     *
+     * Applies a payment transaction entry to the given invoice ID.
+     *
+     * @param int $invoiceId         Invoice ID
+     * @param string $transactionId  Transaction ID
+     * @param float $paymentAmount   Amount paid (defaults to full balance)
+     * @param float $paymentFee      Payment fee (optional)
+     * @param string $gatewayModule  Gateway module name
+     */
+    addInvoicePayment(
+        $invoiceId,
+        $transactionId,
+        null,
+        0,
+        $gatewayModuleName
+    );
+
 }
