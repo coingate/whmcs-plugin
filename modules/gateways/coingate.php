@@ -153,9 +153,9 @@ function coingate_link(array $params)
             'price_currency' => $currencyCode,
             'receive_currency'  => $receiveCurrency,
 
-            'cancel_url'        => $systemUrl . '/clientarea.php',
+            'cancel_url'        => $systemUrl . '/viewinvoice.php?id=' . $invoiceId . '&paymentfailed=1',
             'callback_url'      => $systemUrl . '/modules/gateways/callback/' . $moduleName . '.php',
-            'success_url'       => $systemUrl . '/viewinvoice.php?id=' . $invoiceId,
+            'success_url'       => $systemUrl . '/viewinvoice.php?id=' . $invoiceId . '&paysuccess=1',
             'title'             => $companyName,
             'description'       => $description
         ]);
