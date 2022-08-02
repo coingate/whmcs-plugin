@@ -1,6 +1,10 @@
 WHMCS CoinGate Payment Gateway
 ============================
 
+v2.0.1
+----
+* Directory name fix for CoinGate library
+
 v2.0.0
 ----
 * Plugin was completely refactored

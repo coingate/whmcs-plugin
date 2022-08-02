@@ -14,7 +14,7 @@ Also note, that *Receive Currency* parameter in your module configuration window
 
 ### via FTP
 
-1. Download <https://github.com/coingate/whmcs-plugin/releases/download/v2.0.0/coingate-whmcs-2.0.0.zip>
+1. Download <https://github.com/coingate/whmcs-plugin/releases/download/v2.0.1/coingate-whmcs-2.0.1.zip>
 2. Extract ZIP archive and upload files to web root.
 3. In admin panel, go to **Setup » Payments » Payment Gateways** and select **All Payment Gateways**. Click **CoinGate**.
 4. Inside *CoinGate* block fill the [API Credentials](https://support.coingate.com/en/42/how-can-i-create-coingate-api-credentials) (*Auth Token*) and other fields, also set your **Receive Currency**. Click **Save Changes**
