@@ -12,7 +12,11 @@ Please note, that for "Test" mode you **must** generate separate API credentials
 
 ### via FTP
 
-1. Download <https://github.com/coingate/whmcs-plugin/releases/download/v2.0.1/coingate-whmcs-2.0.1.zip>
+1. Download <https://github.com/coingate/whmcs-plugin/releases/download/v2.0.2/coingate-whmcs-2.0.2.zip>
 2. Extract ZIP archive and upload files to web root.
 3. In admin panel, go to **Setup » Payments » Payment Gateways** and select **All Payment Gateways**. Click **CoinGate**.
-4. Inside *CoinGate* block fill the [API Credentials](https://support.coingate.com/en/42/how-can-i-create-coingate-api-credentials) (*Auth Token*) and other fields, also set your **Receive Currency**. Click **Save Changes**
+4. Inside *CoinGate* block fill the [API Credentials](https://support.coingate.com/en/42/how-can-i-create-coingate-api-credentials) (*Auth Token*) and other fields. Click **Save Changes**.
+
+
+### Upgrading from v1.* to v2.*
+If you're upgrading from version 1.* to 2.*, please read the upgrade guide here: [How to Upgrade CoinGate WHMCS Plugin from Version 1.* to 2.*](https://github.com/coingate/whmcs-plugin/wiki/How-to-Upgrade-CoinGate-WHMCS-Plugin-from-Version-1.*-to-2.*)
