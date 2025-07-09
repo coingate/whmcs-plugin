@@ -57,11 +57,10 @@ function coingate_config()
             'Description' => 'Enable to use Sandbox for testing purpose. Please note, that for Sandbox you must generate separate API credentials at https://sandbox.coingate.com',
         ],
 
-        'receiveCurrency' => [
-            'FriendlyName' => 'Payout Currency',
-            'Type' => 'dropdown',
-            'Options' => 'BTC,USDT,ETH,LTC,EUR,USD,DO_NOT_CONVERT',
-            'Description' => 'Currency you want to receive when making withdrawal at CoinGate. Please take a note what if you choose EUR or USD you will be asked to verify your business before making a withdrawal at CoinGate',
+        'transferShopperDetails' => [
+            'FriendlyName' => 'Transfer Shopper Billing Details',
+            'Type' => 'yesno',
+            'Description' => 'When enabled, this plugin will collect and securely transfer shopper billing information (e.g. name, address, email) to the configured payment processor during checkout for the purposes of payment processing, fraud prevention, and compliance. Enabling this option also helps enhance the shopper\'s experience by pre-filling required fields during checkout, making the process faster and smoother.',
         ],
 
         'action_on_canceled' => [
@@ -104,6 +103,48 @@ function coingate_config_validate(array $params)
 }
 
 /**
+ * Get shopper information from WHMCS parameters.
+ *
+ * @param array $params Payment Gateway Module Parameters
+ *
+ * @return array|null
+ */
+function getShopperInfo(array $params)
+{
+    // Check if we have client details
+    if (empty($params['clientdetails'])) {
+        return null;
+    }
+
+    $client = $params['clientdetails'];
+    $isBusiness = !empty($client['companyname']) || !empty($client['tax_id']);
+
+    $shopper = [
+        'type' => $isBusiness ? 'business' : 'personal',
+        'email' => $client['email'],
+        'first_name' => $client['firstname'],
+        'last_name' => $client['lastname'],
+    ];
+
+    if ($isBusiness) {
+        $shopper['company_details'] = [
+            'name' => $client['companyname'],
+            'address' => $client['address1'],
+            'postal_code' => $client['postcode'],
+            'city' => $client['city'],
+            'country' => $client['country'],
+        ];
+    } else {
+        $shopper['residence_address'] = $client['address1'];
+        $shopper['residence_postal_code'] = $client['postcode'];
+        $shopper['residence_city'] = $client['city'];
+        $shopper['residence_country'] = $client['country'];
+    }
+
+    return $shopper;
+}
+
+/**
  * Payment link.
  *
  * Required by third party payment gateway modules only.
@@ -125,7 +166,7 @@ function coingate_link(array $params)
     // Gateway Configuration Parameters
     $apiAuthToken = $params['apiAuthToken'];
     $useSandboxEnv = $params['useSandboxEnv'];
-    $receiveCurrency = $params['receiveCurrency'];
+    $transferShopperDetails = $params['transferShopperDetails'];
 
     // Invoice Parameters
     $invoiceId = $params['invoiceid'];
@@ -147,18 +188,26 @@ function coingate_link(array $params)
 
     try {
 
-        $order = $client->order->create([
+        $orderParams = [
             'order_id' => $invoiceId,
             'price_amount' => number_format($amount, 8, '.', ''),
             'price_currency' => $currencyCode,
-            'receive_currency'  => $receiveCurrency,
-
             'cancel_url'        => $systemUrl . '/viewinvoice.php?id=' . $invoiceId . '&paymentfailed=1',
             'callback_url'      => $systemUrl . '/modules/gateways/callback/' . $moduleName . '.php',
             'success_url'       => $systemUrl . '/viewinvoice.php?id=' . $invoiceId . '&paysuccess=1',
             'title'             => $companyName,
             'description'       => $description
-        ]);
+        ];
+
+        // Add shopper details if enabled
+        if ($transferShopperDetails) {
+            $shopperInfo = getShopperInfo($params);
+            if ($shopperInfo) {
+                $orderParams['shopper'] = $shopperInfo;
+            }
+        }
+
+        $order = $client->order->create($orderParams);
 
         $htmlOutput = '<form action="' . $order->payment_url . '" method="GET">';
         $htmlOutput .= '<input type="submit" value="' . $langPayNow . '" />';
